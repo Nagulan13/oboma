@@ -2,16 +2,16 @@ import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBg0rK6Rvye36O7j07kvGhdsn3DtHDbz60",
-  authDomain: "appwhiskit.firebaseapp.com",
-  projectId: "appwhiskit",
-  storageBucket: "appwhiskit.appspot.com",
-  messagingSenderId: "992112272809",
-  appId: "1:992112272809:web:d12c15a2fadb6125add0b8",
-  measurementId: "G-KYJ6NFCZH5"
+  apiKey: "AIzaSyBlEFgUg0ba7HHAaf6xC7G0OT8hF-6GUbI",
+  authDomain: "oboma-5730f.firebaseapp.com",
+  projectId: "oboma-5730f",
+  storageBucket: "oboma-5730f.appspot.com",
+  messagingSenderId: "971587600243",
+  appId: "1:971587600243:web:440d1cf309bf704bf80f06"
 };
 
 // Initialize Firebase
@@ -20,5 +20,6 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-export { auth, db };
+export { auth, db, storage };

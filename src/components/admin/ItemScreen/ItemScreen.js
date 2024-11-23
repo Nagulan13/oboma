@@ -1,145 +1,104 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { db } from '../../../services/firebaseConfig'; 
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert, Switch } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { db } from '../../../services/firebaseConfig';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import * as Animatable from 'react-native-animatable';
 
 const ItemScreen = () => {
+  const navigation = useNavigation();
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    status: 'available',
-    image_url: '',
-  });
-  const [editingItem, setEditingItem] = useState(null);
-
-  useEffect(() => {
-    fetchItems();
-  }, []);
 
   const fetchItems = async () => {
-    const querySnapshot = await getDocs(collection(db, 'product'));
-    const itemsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setItems(itemsList);
-  };
-
-  const addItem = async () => {
-    if (newItem.name.trim() && newItem.price.trim()) {
-      const docRef = await addDoc(collection(db, 'product'), newItem);
-      setItems([...items, { id: docRef.id, ...newItem }]);
-      setNewItem({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        status: 'available',
-        image_url: '',
-      });
+    try {
+      const querySnapshot = await getDocs(collection(db, 'menu'));
+      const itemsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setItems(itemsList);
+    } catch (error) {
+      console.error("Error fetching items: ", error);
     }
   };
 
-  const editItem = (item) => {
-    setEditingItem(item);
-    setNewItem(item);
+  const handleDelete = async (itemId) => {
+    try {
+      await deleteDoc(doc(db, 'menu', itemId));
+      fetchItems();  // Refresh the list after deletion
+    } catch (error) {
+      console.error("Error deleting item: ", error);
+      Alert.alert('Error', 'Failed to delete the item. Please try again.');
+    }
   };
 
-  const updateItem = async () => {
-    const itemDocRef = doc(db, 'product', editingItem.id);
-    await updateDoc(itemDocRef, newItem);
-    setItems(items.map(item => item.id === editingItem.id ? { ...newItem, id: editingItem.id } : item));
-    setEditingItem(null);
-    setNewItem({
-      name: '',
-        description: '',
-        price: '',
-        category: '',
-        status: 'available',
-        image_url: '',
-    });
+  const handleToggleStatus = async (item) => {
+    try {
+      const newStatus = item.status === 'available' ? 'unavailable' : 'available';
+      await updateDoc(doc(db, 'menu', item.id), { status: newStatus });
+      fetchItems();  // Refresh the list after updating status
+    } catch (error) {
+      console.error("Error updating item status: ", error);
+      Alert.alert('Error', 'Failed to update the item status. Please try again.');
+    }
   };
 
-  const deleteItem = async (id) => {
-    await deleteDoc(doc(db, 'product', id));
-    setItems(items.filter(item => item.id !== id));
+  const confirmDelete = (itemId) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this item?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          onPress: () => handleDelete(itemId),
+          style: "destructive"
+        }
+      ]
+    );
   };
 
-  const toggleItemStatus = async (id) => {
-    const item = items.find(item => item.id === id);
-    const newStatus = item.status === 'available' ? 'unavailable' : 'available';
-    await updateDoc(doc(db, 'product', id), { status: newStatus });
-    setItems(items.map(item => item.id === id ? { ...item, status: newStatus } : item));
-  };
+  useFocusEffect(
+    useCallback(() => {
+      fetchItems();
+    }, [])
+  );
+
+  const renderItem = ({ item }) => (
+    <Animatable.View animation="fadeInUp" style={styles.itemContainer}>
+      <Image source={{ uri: item.image_url }} style={styles.image} />
+      <Text style={styles.title}>{item.name}</Text>
+      <Text style={styles.price}>RM {item.price}</Text>
+      <View style={styles.statusContainer}>
+        <Text style={styles.status}>Status: {item.status}</Text>
+        <Switch
+          value={item.status === 'available'}
+          onValueChange={() => handleToggleStatus(item)}
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateItemScreen', { item })}>
+          <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => confirmDelete(item.id)}>
+          <Text style={styles.buttonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </Animatable.View>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Manage Product</Text>
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Item Name"
-        value={newItem.name}
-        onChangeText={(text) => setNewItem({ ...newItem, name: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Description"
-        value={newItem.description}
-        onChangeText={(text) => setNewItem({ ...newItem, description: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Price"
-        value={newItem.price}
-        onChangeText={(text) => setNewItem({ ...newItem, price: text })}
-        keyboardType="numeric"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Category"
-        value={newItem.category}
-        onChangeText={(text) => setNewItem({ ...newItem, category: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Image URL"
-        value={newItem.image_url}
-        onChangeText={(text) => setNewItem({ ...newItem, image_url: text })}
-      />
-      <Button
-        title={editingItem ? "Update Item" : "Add Item"}
-        onPress={editingItem ? updateItem : addItem}
-      />
-      
+      <Animatable.Text animation="fadeInDown" style={styles.screenTitle}>Menu Item List</Animatable.Text>
       <FlatList
         data={items}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            <View style={styles.itemDetails}>
-              <Text style={styles.itemText}>ID: {item.id}</Text>
-              <Text style={styles.itemText}>Name: {item.name}</Text>
-              <Text style={styles.itemText}>Description: {item.description}</Text>
-              <Text style={styles.itemText}>Price: {item.price}</Text>
-              <Text style={styles.itemText}>Category: {item.category}</Text>
-              <Text style={styles.itemText}>Status: {item.status}</Text>
-              <Text style={styles.itemText}>Image URL: {item.image_url}</Text>
-            </View>
-            <View style={styles.itemActions}>
-              <TouchableOpacity onPress={() => toggleItemStatus(item.id)}>
-                <Text style={styles.statusButton}>{item.status}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteItem(item.id)} style={styles.deleteButton}>
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => editItem(item)} style={styles.editButton}>
-                <Text style={styles.buttonText}>Edit</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
       />
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddItemScreen')}>
+        <Animatable.Text animation="pulse" easing="ease-out" iterationCount="infinite" style={styles.addButtonText}>Add Item</Animatable.Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -147,61 +106,94 @@ const ItemScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: '#f8f8f8',
   },
-  title: {
+  screenTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+  list: {
+    paddingBottom: 20,
   },
   itemContainer: {
-    backgroundColor: '#333',
     padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 10,
-    marginBottom: 15,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  image: {
+    width: '100%',
+    height: 150,
+    resizeMode: 'cover',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  price: {
+    fontSize: 16,
+    color: 'green',
+    marginBottom: 10,
+  },
+  statusContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   },
-  itemDetails: {
-    flex: 2,
+  status: {
+    fontSize: 14,
+    color: 'gray',
   },
-  itemText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  itemActions: {
-    flex: 1,
+  buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
-  statusButton: {
-    backgroundColor: '#4CAF50',
+  button: {
     padding: 10,
+    backgroundColor: '#007bff',
     borderRadius: 5,
-    color: '#fff',
+    marginLeft: 10,
   },
   deleteButton: {
-    backgroundColor: '#f44336',
-    padding: 10,
-    borderRadius: 5,
-  },
-  editButton: {
-    backgroundColor: '#2196F3',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#dc3545',
   },
   buttonText: {
     color: '#fff',
+    fontSize: 14,
+  },
+  addButton: {
+    padding: 15,
+    backgroundColor: '#28a745',
+    borderRadius: 50,
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

@@ -12,10 +12,8 @@ import Login from './src/components/auth/Login';
 import SignUp from './src/components/auth/SignUp';
 import PasswordReset from './src/components/auth/PasswordReset';
 
-//Creating a stack navigator instance.
 const Stack = createNativeStackNavigator();
 
-//State Variables: Initializing state variables for user, user type, loading status, and Firebase connection status
 const App = () => {
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState('');
@@ -37,7 +35,6 @@ const App = () => {
 
     checkFirebaseConnection();
 
-    //Check User Sessio Retrieves user data from AsyncStorage if it exists and sets the user state.
     const checkUserSession = async () => {
       const savedUser = await AsyncStorage.getItem('user');
       if (savedUser) {
@@ -48,7 +45,7 @@ const App = () => {
           setUserType(userType);
         } catch (error) {
           console.error('Error fetching user type:', error.message);
-          setUser(null); // Reset user state if there is an error fetching user type
+          setUser(null); 
         }
       }
       setLoading(false);
@@ -65,7 +62,7 @@ const App = () => {
           setUserType(userType);
         } catch (error) {
           console.error('Error fetching user type:', error.message);
-          setUser(null); // Reset user state if there is an error fetching user type
+          setUser(null); 
         }
       } else {
         await AsyncStorage.removeItem('user');
@@ -78,7 +75,6 @@ const App = () => {
     return unsubscribe;
   }, []);
 
-  //Handles both sign-in and sign-up logic and Displays appropriate error messages based on the error code.
   const handleAuthentication = async (isLogin, email, password, name, phoneNumber) => {
     try {
       if (isLogin) {
@@ -126,7 +122,6 @@ const App = () => {
     }
   };
 
-  // Handles user sign-out, updates state, and resets navigation stack.
   const handleSignOut = async (navigation) => {
     try {
       await signOut(auth);
@@ -158,36 +153,32 @@ const App = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <Stack.Screen name="Home">
-            {({ navigation }) => (
-              <AppNavigator 
-                user={user} 
-                userType={userType} 
-                handleSignOut={handleSignOut} 
-              />
-            )}
+            {props => <AppNavigator {...props} user={user} userType={userType} handleSignOut={handleSignOut} />}
           </Stack.Screen>
         ) : (
           <>
             <Stack.Screen name="Login">
-              {({ navigation }) => (
+              {props => (
                 <Login
+                  {...props}
                   handleAuthentication={handleAuthentication}
-                  navigateToPasswordReset={() => navigation.navigate('PasswordReset')}
-                  toggleForm={() => navigation.navigate('SignUp')}
+                  navigateToPasswordReset={() => props.navigation.navigate('PasswordReset')}
+                  toggleForm={() => props.navigation.navigate('SignUp')}
                 />
               )}
             </Stack.Screen>
             <Stack.Screen name="SignUp">
-              {({ navigation }) => (
+              {props => (
                 <SignUp
+                  {...props}
                   handleAuthentication={handleAuthentication}
-                  toggleForm={() => navigation.navigate('Login')}
+                  toggleForm={() => props.navigation.navigate('Login')}
                 />
               )}
             </Stack.Screen>
             <Stack.Screen name="PasswordReset">
-              {({ navigation }) => (
-                <PasswordReset toggleForm={() => navigation.navigate('Login')} />
+              {props => (
+                <PasswordReset {...props} toggleForm={() => props.navigation.navigate('Login')} />
               )}
             </Stack.Screen>
           </>

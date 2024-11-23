@@ -32,7 +32,7 @@ const Login = ({ handleAuthentication, toggleForm, navigateToPasswordReset }) =>
   return (
     <Animatable.View animation="fadeInUp" style={styles.container}>
       <Animatable.Image 
-        animation="bounceIn" 
+        animation="pulse" 
         source={require('../../../assets/image/logo.png')} 
         style={styles.logo} 
         iterationCount="infinite" 
@@ -40,14 +40,14 @@ const Login = ({ handleAuthentication, toggleForm, navigateToPasswordReset }) =>
         duration={3000}
       />
       <Animatable.Text animation="fadeIn" delay={100} style={styles.title}>Login to Your Account</Animatable.Text>
-      <Animatable.Text animation="fadeIn" delay={200} style={styles.slogan}>Welcome To WHISKIT.co!</Animatable.Text>
+      <Animatable.Text animation="fadeIn" delay={200} style={styles.slogan}>~ Welcome To OTAi Burger ~</Animatable.Text>
       <Animatable.View animation="fadeIn" delay={300} style={styles.inputContainer}>
         <Icon name="envelope" size={18} color="#000" style={styles.icon} /> 
         <TextInput
           style={styles.input}
           value={email}
           onChangeText={setEmailLocal}
-          placeholder="name@mail.com"
+          placeholder="email address"
           keyboardType="email-address"
           placeholderTextColor="#A9A9A9"
         />
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     width: width,
     height: height,
   },
@@ -201,12 +201,12 @@ const styles = StyleSheet.create({
   signUpText: {
     color: '#000',
     marginTop: 20,
-    fontSize: 18,
+    fontSize: 17,
   },
   signUp2Text: {
     color: '#000',
     marginTop: 20,
-    fontSize: 18,
+    fontSize: 17,
     color: '#3498db',
   },
 });

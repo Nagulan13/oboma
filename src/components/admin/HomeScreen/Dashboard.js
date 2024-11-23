@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -14,24 +13,20 @@ const chartConfig = {
   barPercentage: 0.5,
 };
 
-const HomeScreen = ({ navigation }) => {
+const Dashboard = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.cardContainer}>
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Orders')}>
-          <Icon name="shopping-cart" size={30} color="#000" />
           <Text style={styles.cardText}>Orders</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Menu')}>
-          <Icon name="book" size={30} color="#000" />
           <Text style={styles.cardText}>Menu</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Reports')}>
-          <Icon name="line-chart" size={30} color="#000" />
           <Text style={styles.cardText}>Reports</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Feedback')}>
-          <Icon name="comments" size={30} color="#000" />
           <Text style={styles.cardText}>Feedback</Text>
         </TouchableOpacity>
       </View>
@@ -100,7 +95,6 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
   },
   chartTitle: {
     fontSize: 20,
@@ -113,4 +107,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default Dashboard;

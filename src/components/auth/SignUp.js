@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     width: width,
     height: height,
   },
@@ -172,13 +172,13 @@ const styles = StyleSheet.create({
   signInText: {
     marginTop: 20,
     marginBottom: 20,
-    fontSize: 18,
+    fontSize: 17,
   },
   signIn2Text: {
     color: '#007bff',
     marginTop: 20,
     marginBottom: 20,
-    fontSize: 18,
+    fontSize: 17,
     color: '#3498db',
   },
   orText: {

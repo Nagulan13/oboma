@@ -1,34 +1,31 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../services/firebaseConfig'; // Adjust the import path as necessary
-import { collection, getDocs } from 'firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 
-const StaffScreen = () => {
-  const [staff, setStaff] = useState([]);
+const JobVacancyScreen = () => {
+  const [applications, setApplications] = useState([]);
   const navigation = useNavigation();
 
-  const fetchStaff = async () => {
-    const staffCollection = collection(db, 'staff');
-    const staffSnapshot = await getDocs(staffCollection);
-    const staffList = staffSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setStaff(staffList);
-  };
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'jobvacancy'), (snapshot) => {
+      const applicationsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setApplications(applicationsList);
+    });
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchStaff();
-    }, [])
-  );
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   const renderItem = ({ item, index }) => (
     <Animatable.View animation="fadeInUp" delay={index * 100} style={styles.itemContainer}>
-      <TouchableOpacity onPress={() => navigation.navigate('StaffDetails', { staffId: item.id })}>
+      <TouchableOpacity onPress={() => navigation.navigate('JobVacancyDetails', { applicationId: item.id })}>
         <View style={styles.item}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={[styles.status, item.status === 'active' ? styles.active : styles.inactive]}>
-            {item.status}
+          <Text style={styles.text}>{index + 1}. {item.name}</Text>
+          <Text style={[styles.status, item.job_status === 'pending' ? styles.pending : styles.completed]}>
+            {item.job_status}
           </Text>
         </View>
       </TouchableOpacity>
@@ -37,9 +34,9 @@ const StaffScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Staff List</Text>
+      <Text style={styles.title}>Job Applications</Text>
       <FlatList
-        data={staff}
+        data={applications}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
@@ -80,7 +77,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  name: {
+  text: {
     fontSize: 18,
     color: '#333',
   },
@@ -91,14 +88,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     textTransform: 'capitalize',
   },
-  active: {
+  pending: {
+    backgroundColor: '#ffe0b2',
+    color: '#ff9800',
+  },
+  completed: {
     backgroundColor: '#c8e6c9',
     color: '#4caf50',
   },
-  inactive: {
-    backgroundColor: '#ffcdd2',
-    color: '#f44336',
-  },
 });
 
-export default StaffScreen;
+export default JobVacancyScreen;

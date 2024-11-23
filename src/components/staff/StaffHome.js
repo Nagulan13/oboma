@@ -40,17 +40,19 @@ const StaffHome = ({ handleSignOut }) => (
       name="StaffTabs"
       component={StaffTabs}
       options={({ navigation }) => ({
+        headerTitle: 'OTAi Burger',
         headerRight: () => (
           <Icon
-            name="cog"
-            size={25}
+            name="user-circle"
+            size={30}
             color="#000"
-            style={{ marginRight: 15 }}
+            style={{ marginRight: 25 }}
             onPress={() => navigation.navigate('Settings', { handleSignOut })}
           />
         ),
       })}
     />
+    
     <Stack.Screen name="Settings" component={SettingsScreen} initialParams={{ handleSignOut }} />
     <Stack.Screen name="PersonalDetails" component={PersonalDetailsScreen} />
     <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
