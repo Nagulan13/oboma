@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "oboma"
-  }
+    "default": "oboma",
+    "otaiburger": "oboma-5730f"
+  },
+  "targets": {},
+  "etags": {}
 }

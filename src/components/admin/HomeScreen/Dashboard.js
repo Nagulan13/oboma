@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { db } from '../../services/firebaseConfig'; // Ensure you have Firebase properly configured
+import { collection, getDocs } from 'firebase/firestore';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -9,11 +11,35 @@ const chartConfig = {
   backgroundGradientFrom: "#1E2923",
   backgroundGradientTo: "#08130D",
   color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-  strokeWidth: 2, // optional, default 3
+  strokeWidth: 2,
   barPercentage: 0.5,
 };
 
 const Dashboard = ({ navigation }) => {
+  const [totalSales, setTotalSales] = useState(0);
+
+  useEffect(() => {
+    const fetchTotalSales = async () => {
+      try {
+        const ordersCollection = collection(db, 'orders');
+        const querySnapshot = await getDocs(ordersCollection);
+        let sales = 0;
+        querySnapshot.forEach((doc) => {
+          const orderData = doc.data();
+          if (orderData.total_price) {
+            sales += parseFloat(orderData.total_price); // Sum the total_price field
+          }
+        });
+        setTotalSales(sales.toFixed(2)); // Round to 2 decimal places
+      } catch (error) {
+        console.error('Error fetching total sales:', error);
+        Alert.alert('Error', 'Could not fetch total sales data.');
+      }
+    };
+
+    fetchTotalSales();
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.cardContainer}>
@@ -30,7 +56,14 @@ const Dashboard = ({ navigation }) => {
           <Text style={styles.cardText}>Feedback</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.chartTitle}>Sales Overview</Text>
+      
+      {/* Display Total Sales */}
+      <View style={styles.salesOverview}>
+        <Text style={styles.salesTitle}>Sales Overview</Text>
+        <Text style={styles.salesAmount}>Total Sales: RM {totalSales}</Text>
+      </View>
+
+      {/* Sales Chart */}
       <LineChart
         data={{
           labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -47,6 +80,7 @@ const Dashboard = ({ navigation }) => {
         bezier
         style={styles.chart}
       />
+
       <Text style={styles.chartTitle}>Monthly Orders</Text>
       <BarChart
         data={{
@@ -94,6 +128,23 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  salesOverview: {
+    backgroundColor: '#e3f2fd',
+    borderRadius: 8,
+    padding: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  salesTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  salesAmount: {
+    fontSize: 24,
+    color: '#4CAF50',
     fontWeight: 'bold',
   },
   chartTitle: {

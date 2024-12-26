@@ -7,8 +7,8 @@ const Tab = createMaterialTopTabNavigator();
 
 const Staff_JobScreen = () => (
   <Tab.Navigator>
-    <Tab.Screen name="Staff" component={StaffScreen} />
-    <Tab.Screen name="Job Vacancy" component={JobVacancyScreen} />
+    <Tab.Screen name="StaffTab" component={StaffScreen} options={{ title: 'Staff' }} />
+    <Tab.Screen name="JobVacancyTab" component={JobVacancyScreen} options={{ title: 'Job Vacancy' }} />
   </Tab.Navigator>
 );
 

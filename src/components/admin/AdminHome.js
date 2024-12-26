@@ -7,13 +7,15 @@ import ItemScreen from './ItemScreen/ItemScreen';
 import UpdateItemScreen from './ItemScreen/UpdateItemScreen';
 import AddItemScreen from './ItemScreen/AddItemScreen';
 import Staff_JobScreen from './StaffScreen/Staff_JobScreen';
-import FeedbackScreen from './FeedbackScreen/FeedbackScreen';
+import AdminFeedbackScreen from './FeedbackScreen/AdminFeedbackScreen';
 import ReportScreen from './ReportScreen/ReportScreen';
-import SettingsScreen from '../shared/SettingsScreen';
-import PersonalDetailsScreen from '../shared/PersonalDetailsScreen';
-import ChangePasswordScreen from '../shared/ChangePasswordScreen';
-import StaffDetails from './StaffScreen/StaffDetails'; // Import StaffDetails
-import JobVacancyDetails from './StaffScreen/JobVacancyDetails'; // Import JobVacancyDetails
+import SettingsScreen from './SettingsScreen';
+import PersonalDetailsScreen from './PersonalDetailsScreen';
+import UpdatePersonalDetailsScreen from './UpdatePersonalDetailsScreen';
+import ChangePasswordScreen from './ChangePasswordScreen';
+import StaffDetails from './StaffScreen/StaffDetails';
+import JobVacancyDetails from './StaffScreen/JobVacancyDetails';
+import AdminJobVacancyToggleScreen from './AdminJobVacancyToggleScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -25,13 +27,13 @@ const AdminTabs = () => (
         let iconName;
 
         switch (route.name) {
-          case 'Home':
+          case 'AdminHomeScreen':
             iconName = 'home';
             break;
           case 'Item':
             iconName = 'archive';
             break;
-          case 'Staff':
+          case 'StaffManagement':
             iconName = 'users';
             break;
           case 'Feedback':
@@ -50,11 +52,31 @@ const AdminTabs = () => (
       tabBarInactiveTintColor: 'gray',
     })}
   >
-    <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="Item" component={ItemScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="Staff" component={Staff_JobScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="Feedback" component={FeedbackScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="Report" component={ReportScreen} options={{ headerShown: false }} />
+    <Tab.Screen
+      name="AdminHomeScreen"
+      component={HomeScreen}
+      options={{ headerShown: false, tabBarLabel: 'Home' }}
+    />
+    <Tab.Screen
+      name="Item"
+      component={ItemScreen}
+      options={{ headerShown: false }}
+    />
+    <Tab.Screen
+      name="StaffManagement"
+      component={Staff_JobScreen}
+      options={{ headerShown: false, tabBarLabel: 'Staff' }}
+    />
+    <Tab.Screen
+      name="Feedback"
+      component={AdminFeedbackScreen}
+      options={{ headerShown: false }}
+    />
+    <Tab.Screen
+      name="Report"
+      component={ReportScreen}
+      options={{ headerShown: false }}
+    />
   </Tab.Navigator>
 );
 
@@ -71,19 +93,57 @@ const AdminHome = ({ handleSignOut }) => (
             size={30}
             color="#000"
             style={{ marginRight: 25 }}
-            onPress={() => navigation.navigate('Settings', { handleSignOut })}
+            onPress={() =>
+              navigation.navigate('Settings', {
+                handleSignOut,
+              })
+            }
           />
         ),
       })}
     />
-    <Stack.Screen name="Settings" component={SettingsScreen} initialParams={{ handleSignOut }} />
-    <Stack.Screen name="PersonalDetails" component={PersonalDetailsScreen} />
-    <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-    <Stack.Screen name="ItemScreen" component={ItemScreen} />
-    <Stack.Screen name="AddItemScreen" component={AddItemScreen} />
-    <Stack.Screen name="UpdateItemScreen" component={UpdateItemScreen} />
-    <Stack.Screen name="StaffDetails" component={StaffDetails} />
-    <Stack.Screen name="JobVacancyDetails" component={JobVacancyDetails} />
+    <Stack.Screen
+      name="Settings"
+      component={SettingsScreen}
+      initialParams={{ handleSignOut }}
+    />
+    <Stack.Screen
+      name="PersonalDetails"
+      component={PersonalDetailsScreen}
+    />
+    <Stack.Screen
+      name="ChangePassword"
+      component={ChangePasswordScreen}
+    />
+    <Stack.Screen
+      name="ItemScreen"
+      component={ItemScreen}
+    />
+    <Stack.Screen
+      name="AddItemScreen"
+      component={AddItemScreen}
+    />
+    <Stack.Screen
+      name="UpdateItemScreen"
+      component={UpdateItemScreen}
+    />
+    <Stack.Screen
+      name="StaffDetails"
+      component={StaffDetails}
+    />
+    <Stack.Screen
+      name="JobVacancyDetails"
+      component={JobVacancyDetails}
+    />
+    <Stack.Screen
+      name="UpdatePersonalDetails"
+      component={UpdatePersonalDetailsScreen}
+    />
+    <Stack.Screen
+      name="AdminJobVacancyToggle"
+      component={AdminJobVacancyToggleScreen}
+    />
+
   </Stack.Navigator>
 );
 

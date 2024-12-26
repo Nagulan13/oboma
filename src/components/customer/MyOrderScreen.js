@@ -1,120 +1,307 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import * as Animatable from 'react-native-animatable';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
+import { collection, query, where, onSnapshot, getDocs, orderBy } from 'firebase/firestore';
+import { auth, db } from '../../services/firebaseConfig';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const MyOrderScreen = () => {
-  const dummyOrders = [
-    {
-      id: '1',
-      item: 'Beef Burger with Cheese',
-      quantity: 2,
-      price: 8.00,
-      status: 'Preparing',
-    },
-    {
-      id: '2',
-      item: 'Chicken Burger',
-      quantity: 1,
-      price: 4.00,
-      status: 'Done',
-    },
-    {
-      id: '3',
-      item: 'Veggie Burger',
-      quantity: 3,
-      price: 12.00,
-      status: 'Preparing',
-    },
-  ];
+  // ---------------------------
+  // State Variables
+  // ---------------------------
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation();
 
-  const renderOrder = ({ item, index }) => (
-    <Animatable.View
-      animation="fadeInUp"
-      delay={index * 100}
-      style={styles.orderContainer}
-    >
-      <View style={styles.orderHeader}>
-        <Text style={styles.orderItem}>{item.item}</Text>
-        <Text style={[styles.orderStatus, item.status === 'Done' ? styles.done : styles.preparing]}>
-          {item.status}
+  // ---------------------------
+  // Map Customer Status
+  // ---------------------------
+  const mapCustomerStatus = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return 'Order Placed';
+      case 'preparing':
+        return 'Preparing';
+      case 'ready for pickup':
+        return 'Ready for Pickup';
+      case 'completed':
+        return 'Completed';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  // ---------------------------
+  // Status Color
+  // ---------------------------
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return '#FFA500'; // Orange
+      case 'preparing':
+        return '#1E90FF'; // Blue
+      case 'ready for pickup':
+        return '#32CD32'; // Green
+      case 'completed':
+        return '#8B4513'; // Brown
+      default:
+        return '#808080'; // Gray
+    }
+  };
+
+  // ---------------------------
+  // Fetch Orders on Mount
+  // ---------------------------
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert('Error', 'User not authenticated.');
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
+
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, where('customerId', '==', user.uid), orderBy('order_date', 'desc'));
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const fetchedOrders = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setOrders(fetchedOrders);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error fetching orders:', error);
+        Alert.alert('Error', 'Failed to fetch orders.');
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // ---------------------------
+  // Refresh Orders
+  // ---------------------------
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        Alert.alert('Error', 'User not authenticated.');
+        setOrders([]);
+        setRefreshing(false);
+        return;
+      }
+
+      const ordersRef = collection(db, 'orders');
+      const q = query(ordersRef, where('customerId', '==', user.uid), orderBy('order_date', 'desc'));
+
+      const querySnapshot = await getDocs(q);
+      const fetchedOrders = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setOrders(fetchedOrders);
+    } catch (error) {
+      console.error('Error refreshing orders:', error);
+      Alert.alert('Error', 'Failed to refresh orders.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // ---------------------------
+  // Render Single Order
+  // ---------------------------
+  const renderItem = ({ item }) => {
+    const totalPrice =
+      item.total_price != null && typeof item.total_price === 'number'
+        ? item.total_price.toFixed(2)
+        : 'N/A';
+
+    return (
+      <TouchableOpacity
+        style={styles.orderContainer}
+        onPress={() => navigation.navigate('OrderDetails', { order: item })}
+      >
+        <View style={styles.orderHeader}>
+          <Text style={styles.orderId}>Order ID: {item.id}</Text>
+          <Text style={[styles.orderStatus, { color: getStatusColor(item.order_status) }]}>
+            {mapCustomerStatus(item.order_status)}
+          </Text>
+        </View>
+
+        <Text style={styles.orderDate}>
+          Order Date:{' '}
+          {item.order_date?.seconds
+            ? new Date(item.order_date.seconds * 1000).toLocaleString()
+            : 'N/A'}
         </Text>
-      </View>
-      <Text style={styles.orderQuantity}>Quantity: {item.quantity}</Text>
-      <Text style={styles.orderPrice}>Price: RM {item.price.toFixed(2)}</Text>
-    </Animatable.View>
-  );
 
+        <Text style={styles.orderPrice}>Total Price: RM {totalPrice}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // ---------------------------
+  // Loading UI
+  // ---------------------------
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3498db" />
+        <Text style={styles.loadingText}>Loading your orders...</Text>
+      </View>
+    );
+  }
+
+  // ---------------------------
+  // No Orders
+  // ---------------------------
+  if (orders.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Ionicons name="cart-outline" size={60} color="#555" />
+        <Text style={styles.emptyText}>You have no orders yet.</Text>
+
+        <TouchableOpacity
+          style={styles.shopButton}
+          onPress={() => navigation.navigate('MenuView')}
+        >
+          <Text style={styles.shopButtonText}>Shop Now</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // ---------------------------
+  // Main Return
+  // ---------------------------
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>My Orders</Text>
       <FlatList
-        data={dummyOrders}
-        renderItem={renderOrder}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
+        data={orders}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ListHeaderComponent={<Text style={styles.title}>My Orders</Text>}
+        contentContainerStyle={styles.listContainer}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );
 };
 
+// ---------------------------
+// Styles
+// ---------------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 10,
+    backgroundColor: '#f3edf7', // Slightly lighter background for a modern look
+    paddingHorizontal: 15,
   },
-  header: {
-    fontSize: 24,
+  title: {
+    fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginVertical: 20,
+    color: '#333',
   },
-  list: {
-    paddingBottom: 10,
+  listContainer: {
+    padding: 10,
   },
   orderContainer: {
+    padding: 15,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 10,
-    elevation: 5,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#aaa',
+    shadowOffset: { width: 1, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   orderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
   },
-  orderItem: {
-    fontSize: 18,
+  orderId: {
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#444',
   },
   orderStatus: {
     fontSize: 14,
-    fontWeight: 'bold',
-    padding: 5,
-    borderRadius: 5,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
-  done: {
-    color: 'green',
-    backgroundColor: '#e0f7e9',
+  orderDate: {
+    marginTop: 5,
+    fontSize: 14,
+    color: '#666',
   },
-  preparing: {
-    color: 'orange',
-    backgroundColor: '#fff4e0',
+  orderPrice: {
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
-  orderQuantity: {
+  separator: {
+    height: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3edf7',
+  },
+  loadingText: {
+    marginTop: 10,
     fontSize: 16,
     color: '#555',
   },
-  orderPrice: {
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f3edf7',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#777',
+    marginVertical: 10,
+    textAlign: 'center',
+  },
+  shopButton: {
+    backgroundColor: '#2ecc71',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginTop: 15,
+  },
+  shopButtonText: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: '600',
   },
 });
 

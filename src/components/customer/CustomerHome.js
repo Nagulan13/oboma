@@ -1,29 +1,35 @@
-// CustomerHome.js
-import React, { useState, useEffect } from 'react';
-import { 
-  createBottomTabNavigator 
-} from '@react-navigation/bottom-tabs';
-import { 
-  createStackNavigator 
-} from '@react-navigation/stack';
+// src/components/customer/CustomerHome.js
+
+import React, { useEffect, useState } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MenuViewScreen from './MenuViewScreen';
 import MyOrderScreen from './MyOrderScreen';
+import OrderDetailsScreen from './OrderDetailsScreen';
 import CartScreen from './CartScreen';
-import SettingsScreen from '../shared/SettingsScreen';
-import PersonalDetailsScreen from '../shared/PersonalDetailsScreen';
-import ChangePasswordScreen from '../shared/ChangePasswordScreen';
-import JobVacancyScreen from './JobVacancyScreen';
-import { auth, db } from '../../services/firebaseConfig'; // Corrected path for Firebase config
-import { signOut } from 'firebase/auth'; // Firebase Auth method
-import { doc, deleteDoc } from 'firebase/firestore'; // Firestore methods
-import { StripeProvider } from '@stripe/stripe-react-native'; // Import StripeProvider
+import JobVacancyScreen from './JobVacancyScreen'; // This is the CUSTOMER "job vacancy" form screen
+import InvoiceScreen from './InvoiceScreen';
+import CheckoutScreen from './CheckoutScreen';
+import FeedbackScreen from './FeedbackScreen';
+import InboxScreen from './InboxScreen';
+import InvoiceDetailsScreen from './InvoiceDetailsScreen';
+import SettingsScreen from './SettingsScreen';
+import PersonalDetailsScreen from './PersonalDetailsScreen';
+import ChangePasswordScreen from './ChangePasswordScreen';
+import UpdatePersonalDetailsScreen from './UpdatePersonalDetailsScreen';
+import { auth, db } from '../../services/firebaseConfig';
+import { signOut } from 'firebase/auth';
+import { doc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { ActivityIndicator, View, Text, StyleSheet, Alert } from 'react-native';
 
+// Initialize Navigators
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const CustomerTabs = () => (
+// Bottom Tab Navigator
+const CustomerTabs = ({ jobVacancyOpen }) => (
   <Tab.Navigator
     initialRouteName="MenuView"
     screenOptions={({ route }) => ({
@@ -49,27 +55,31 @@ const CustomerTabs = () => (
       },
       tabBarActiveTintColor: '#000',
       tabBarInactiveTintColor: 'gray',
+      headerShown: false,
     })}
   >
-    <Tab.Screen name="JobVacancy" component={JobVacancyScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="MenuView" component={MenuViewScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="MyOrder" component={MyOrderScreen} options={{ headerShown: false }} />
-    <Tab.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+    {/* Conditionally show the JobVacancy tab */}
+    {jobVacancyOpen && (
+      <Tab.Screen name="JobVacancy" component={JobVacancyScreen} />
+    )}
+    <Tab.Screen name="MenuView" component={MenuViewScreen} />
+    <Tab.Screen name="MyOrder" component={MyOrderScreen} />
+    <Tab.Screen name="Cart" component={CartScreen} />
   </Tab.Navigator>
 );
 
+// Handle Sign Out
 const handleSignOut = async () => {
   try {
     const userId = auth.currentUser?.uid;
-
     if (userId) {
       const cartRef = doc(db, 'carts', userId);
       await deleteDoc(cartRef);
       console.log('Cart deleted from Firestore!');
     }
-
     await signOut(auth);
     console.log('User signed out successfully!');
+    Alert.alert('Signed Out', 'You have been successfully signed out.');
   } catch (error) {
     console.error('Error signing out and deleting cart: ', error);
     Alert.alert('Error', 'Failed to sign out.');
@@ -80,38 +90,40 @@ const CustomerHome = () => {
   const [publishableKey, setPublishableKey] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = "http://192.168.0.142:8080"; // Replace with your actual backend URL
-  // Adjust the above URL based on your environment:
-  // - Android Emulator: http://10.0.2.2:8080
-  // - iOS Simulator: http://localhost:8080 or http://127.0.0.1:8080
-  // - Physical Devices: Use your machine's local network IP, e.g., http://192.168.x.x:8080
-
-  // Fetch the publishable key from your backend
-  const fetchPublishableKey = async () => {
-    try {
-      const response = await fetch(`${API_URL}/get-publishable-key`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch publishable key');
-      }
-      const data = await response.json();
-      setPublishableKey(data.key);
-    } catch (error) {
-      console.error('Error fetching publishable key:', error);
-      Alert.alert('Error', 'Failed to load payment configuration. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // jobVacancyOpen from Firestore
+  const [jobVacancyOpen, setJobVacancyOpen] = useState(true);
 
   useEffect(() => {
+    // 1) Fetch Stripe key
+    const fetchPublishableKey = async () => {
+      try {
+        const response = await fetch('http://192.168.134.232:8082/get-publishable-key');
+        const data = await response.json();
+        setPublishableKey(data.key);
+      } catch (error) {
+        console.error('Error fetching publishable key:', error);
+        Alert.alert('Error', 'Failed to load payment configuration.');
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchPublishableKey();
+
+    // 2) Listen to "jobVacancyOpen"
+    const docRef = doc(db, 'adminConfig', 'jobVacancySettings');
+    const unsubscribe = onSnapshot(docRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setJobVacancyOpen(snapshot.data().jobVacancyOpen);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading payment configuration...</Text>
       </View>
     );
   }
@@ -119,7 +131,7 @@ const CustomerHome = () => {
   if (!publishableKey) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Unable to load payment configuration.</Text>
+        <Text style={styles.errorText}>Error loading payment configuration.</Text>
       </View>
     );
   }
@@ -127,9 +139,11 @@ const CustomerHome = () => {
   return (
     <StripeProvider publishableKey={publishableKey}>
       <Stack.Navigator>
+        {/* Main Tabs */}
         <Stack.Screen
           name="CustomerTabs"
-          component={CustomerTabs}
+          // Pass jobVacancyOpen to the tab navigator
+          children={() => <CustomerTabs jobVacancyOpen={jobVacancyOpen} />}
           options={({ navigation }) => ({
             headerTitle: 'OTAi Burger',
             headerRight: () => (
@@ -143,18 +157,76 @@ const CustomerHome = () => {
             ),
           })}
         />
-        <Stack.Screen 
-          name="Settings" 
-          component={SettingsScreen} 
-          initialParams={{ handleSignOut }} 
+
+        {/* Settings */}
+        <Stack.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            headerTitle: 'Settings',
+            headerLeft: () => null,
+            gestureEnabled: false,
+          }}
+          initialParams={{ handleSignOut }}
         />
-        <Stack.Screen name="PersonalDetails" component={PersonalDetailsScreen} />
-        <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+        <Stack.Screen
+          name="PersonalDetails"
+          component={PersonalDetailsScreen}
+          options={{ headerTitle: 'Personal Details' }}
+        />
+        <Stack.Screen
+          name="ChangePassword"
+          component={ChangePasswordScreen}
+          options={{ headerTitle: 'Change Password' }}
+        />
+        <Stack.Screen
+          name="UpdatePersonalDetails"
+          component={UpdatePersonalDetailsScreen}
+          options={{ headerTitle: 'Update Personal Details' }}
+        />
+
+        {/* Additional Screens */}
+        <Stack.Screen
+          name="InvoiceScreen"
+          component={InvoiceScreen}
+          options={{ title: 'Invoice' }}
+        />
+        <Stack.Screen
+          name="CheckoutScreen"
+          component={CheckoutScreen}
+          options={{ title: 'Checkout' }}
+        />
+
+        {/* Order Details */}
+        <Stack.Screen
+          name="OrderDetails"
+          component={OrderDetailsScreen}
+          options={{ title: 'Order Details' }}
+        />
+
+        <Stack.Screen
+          name="FeedbackScreen"
+          component={FeedbackScreen}
+          options={{ title: 'Feedback' }}
+        />
+
+        <Stack.Screen
+          name="InboxScreen"
+          component={InboxScreen}
+          options={{ title: 'Inbox' }}
+        />
+
+        <Stack.Screen
+          name="InvoiceDetails"
+          component={InvoiceDetailsScreen}
+          options={{ title: 'Invoice Details' }}
+        />
       </Stack.Navigator>
     </StripeProvider>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
@@ -162,7 +234,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorContainer: {
-    flex:1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

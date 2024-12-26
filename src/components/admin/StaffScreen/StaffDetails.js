@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  TextInput,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { doc, getDoc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../../../services/firebaseConfig'; // Adjust the import path as necessary
+import { db, auth } from '../../../services/firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import * as Animatable from 'react-native-animatable';
 
@@ -16,25 +24,23 @@ const generatePassword = () => {
 };
 
 const sendEmailToStaff = (email, password) => {
-  fetch('http://localhost:3002/send-email', { // Replace with your local IP address
+  fetch('http://192.168.134.232:8081/send-email', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       to: email,
       subject: 'Your Staff Account Credentials',
       text: `Welcome! Your account has been created. Your temporary password is: ${password}`,
     }),
   })
-    .then(response => {
+    .then((response) => {
       if (response.ok) {
         console.log('Email sent successfully');
       } else {
         console.log('Error sending email');
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.log('Error sending email:', error);
     });
 };
@@ -43,6 +49,9 @@ const StaffDetails = () => {
   const route = useRoute();
   const { staffId } = route.params;
   const [staffDetails, setStaffDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [reason, setReason] = useState('');
+  const [isTerminating, setIsTerminating] = useState(false);
 
   useEffect(() => {
     const fetchStaffDetails = async () => {
@@ -56,6 +65,8 @@ const StaffDetails = () => {
         }
       } catch (error) {
         console.error('Error fetching staff details:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -69,39 +80,26 @@ const StaffDetails = () => {
     }
 
     try {
-      // Generate a temporary password
       const tempPassword = generatePassword();
-
-      // Create the user with email and password
-      const userCredential = await createUserWithEmailAndPassword(auth, staffDetails.email, tempPassword);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        staffDetails.email,
+        tempPassword
+      );
       const user = userCredential.user;
 
-      // Create new staff document with the new UID and details from the current staff document
       await setDoc(doc(db, 'staff', user.uid), {
-        name: staffDetails.name,
-        email: staffDetails.email,
-        phone_number: staffDetails.phone_number,
-        address: staffDetails.address,
+        ...staffDetails,
         status: 'active',
         uid: user.uid,
       });
 
-      // Delete the old staff document to avoid duplication
       await deleteDoc(doc(db, 'staff', staffId));
 
-      // Send an email with the generated password
       sendEmailToStaff(staffDetails.email, tempPassword);
-      
 
       Alert.alert('Success', 'Account created, and email sent successfully.');
-
-      // Update the staff details to reflect the new UID without navigating away
-      setStaffDetails((prevDetails) => ({
-        ...prevDetails,
-        uid: user.uid,
-        status: 'active'
-      }));
-
+      setStaffDetails((prevDetails) => ({ ...prevDetails, uid: user.uid, status: 'active' }));
     } catch (error) {
       console.error('Error generating account:', error.message);
       Alert.alert('Error', 'There was an error generating the account.');
@@ -109,60 +107,86 @@ const StaffDetails = () => {
   };
 
   const handleTerminateStaff = async () => {
+    if (!reason.trim()) {
+      Alert.alert('Error', 'Please provide a reason for termination.');
+      return;
+    }
+
     try {
       const staffDoc = doc(db, 'staff', staffId);
-      await updateDoc(staffDoc, { status: 'terminated' });
-      Alert.alert('Success', 'Staff member terminated successfully.');
-      
-      // Update the staff details to reflect the new status without navigating away
-      setStaffDetails((prevDetails) => ({
-        ...prevDetails,
-        status: 'terminated'
-      }));
+      await updateDoc(staffDoc, { status: 'terminated', termination_reason: reason });
 
+      Alert.alert('Success', 'Staff member terminated successfully.');
+      setStaffDetails((prevDetails) => ({ ...prevDetails, status: 'terminated' }));
     } catch (error) {
       console.error('Error terminating staff:', error.message);
       Alert.alert('Error', 'There was an error terminating the staff member.');
     }
   };
 
-  if (!staffDetails) {
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Loading...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text>Loading staff details...</Text>
       </View>
     );
   }
 
+  const isTerminated = staffDetails.status === 'terminated';
+
   return (
-    <Animatable.View animation="fadeInUp" duration={800} style={styles.container}>
-      <Animatable.Text animation="fadeInDown" duration={800} style={styles.title}>
-        {staffDetails.name}
-      </Animatable.Text>
-      <Animatable.View animation="fadeInLeft" delay={200} duration={800} style={styles.detailContainer}>
+    <Animatable.View
+      animation="fadeInUp"
+      duration={800}
+      style={[styles.container, isTerminated && styles.terminatedContainer]}
+    >
+      <Text style={styles.title}>{staffDetails.name}</Text>
+      <View style={styles.detailContainer}>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.text}>{staffDetails.email}</Text>
-      </Animatable.View>
-      <Animatable.View animation="fadeInLeft" delay={400} duration={800} style={styles.detailContainer}>
-        <Text style={styles.label}>Phone:</Text>
-        <Text style={styles.text}>{staffDetails.phone_number}</Text>
-      </Animatable.View>
-      <Animatable.View animation="fadeInLeft" delay={600} duration={800} style={styles.detailContainer}>
+        <Text style={styles.value}>{staffDetails.email}</Text>
+      </View>
+      <View style={styles.detailContainer}>
+        <Text style={styles.label}>Phone Number:</Text>
+        <Text style={styles.value}>{staffDetails.phone_number}</Text>
+      </View>
+      <View style={styles.detailContainer}>
         <Text style={styles.label}>Address:</Text>
-        <Text style={styles.text}>{staffDetails.address}</Text>
-      </Animatable.View>
-      <Animatable.View animation="fadeInLeft" delay={800} duration={800} style={styles.detailContainer}>
+        <Text style={styles.value}>{staffDetails.address}</Text>
+      </View>
+      <View style={styles.detailContainer}>
         <Text style={styles.label}>Status:</Text>
-        <Text style={styles.text}>{staffDetails.status}</Text>
-      </Animatable.View>
-      <Animatable.View animation="fadeInUp" delay={1000} duration={800} style={styles.buttonContainer}>
-        <View style={styles.button}>
-          <Button title="Generate Account" onPress={handleGenerateAccount} color="#4CAF50" />
+        <Text style={[styles.value, styles[staffDetails.status]]}>{staffDetails.status}</Text>
+      </View>
+      {isTerminated && staffDetails.termination_reason && (
+        <View style={styles.detailContainer}>
+          <Text style={styles.label}>Termination Reason:</Text>
+          <Text style={styles.value}>{staffDetails.termination_reason}</Text>
         </View>
-        <View style={styles.button}>
-          <Button title="Terminate Staff" onPress={handleTerminateStaff} color="#F44336" />
-        </View>
-      </Animatable.View>
+      )}
+      {!isTerminated && (
+        <>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleGenerateAccount}>
+              <Text style={styles.buttonText}>Generate Account</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.detailContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter termination reason"
+              value={reason}
+              onChangeText={setReason}
+            />
+            <TouchableOpacity
+              style={[styles.button, styles.terminateButton]}
+              onPress={handleTerminateStaff}
+            >
+              <Text style={styles.buttonText}>Terminate Staff</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </Animatable.View>
   );
 };
@@ -173,30 +197,66 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f8f8f8',
   },
+  terminatedContainer: {
+    backgroundColor: '#ffe6e6',
+  },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'left',
+    textAlign: 'center',
     color: '#333',
   },
   detailContainer: {
     marginBottom: 15,
   },
   label: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#555',
   },
-  text: {
-    fontSize: 18,
+  value: {
+    fontSize: 16,
     color: '#333',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 5,
+  },
+  active: {
+    color: '#4CAF50',
+  },
+  terminated: {
+    color: '#F44336',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: '#fff',
   },
   buttonContainer: {
-    marginTop: 30,
+    marginVertical: 10,
   },
   button: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
     marginBottom: 10,
+  },
+  terminateButton: {
+    backgroundColor: '#F44336',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

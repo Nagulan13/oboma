@@ -1,5 +1,5 @@
-// CartScreen.js DNA
-import React, { useState, useEffect } from 'react'; // Add useEffect
+// CartScreen.js
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -11,41 +11,25 @@ import {
   Modal, 
   Alert, 
   ActivityIndicator 
-} from 'react-native'; // Add ActivityIndicator
-import { 
-  doc, 
-  onSnapshot, 
-  updateDoc, 
-  deleteDoc 
-} from 'firebase/firestore'; // Import Firestore methods
-import { auth, db } from '../../services/firebaseConfig'; // Import Firebase configurations
-import { useStripe } from '@stripe/stripe-react-native'; // Import useStripe hook
+} from 'react-native';
+import { doc, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore';
+import { auth, db } from '../../services/firebaseConfig';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
-const CartScreen = () => {  // Change to functional component
-  const [cartItems, setCartItems] = useState([]); // For storing cart items
-  const [selectedItem, setSelectedItem] = useState(null); // For storing the item being edited
-  const [isModalVisible, setIsModalVisible] = useState(false); // For controlling modal visibility
-  const [specialRequest, setSpecialRequest] = useState(''); // Track special request
-
-  const [payableAmount, setPayableAmount] = useState(0); // Track total payable amount
-
-  const { initPaymentSheet, presentPaymentSheet } = useStripe(); // Stripe hook
-  const [loading, setLoading] = useState(false); // Loading state for payment sheet
-  const [paymentLoading, setPaymentLoading] = useState(false); // Loading state for payment
-
-  const API_URL = "http://192.168.0.142:8080"; // Replace with your actual backend URL
-  // Adjust based on your testing environment:
-  // - Android Emulator: http://10.0.2.2:8080
-  // - iOS Simulator: http://localhost:8080 or http://127.0.0.1:8080
-  // - Physical Devices: Use your machine's local network IP, e.g., http://192.168.x.x:8080
+const CartScreen = () => {  
+  const [cartItems, setCartItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [specialRequest, setSpecialRequest] = useState('');
+  const [quantity, setQuantity] = useState(1); // Track quantity for editing
+  const [payableAmount, setPayableAmount] = useState(0);
+  const [loading, setLoading] = useState(false); // Loading state for any future use
+  const navigation = useNavigation(); // Initialize navigation
 
   // Calculate the total payable amount whenever cartItems change
   useEffect(() => {
     const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    // Convert RM to sen and ensure it's an integer
     const totalInSen = Math.round(total * 100);
-    console.log(`Total in RM: ${total}`);
-    console.log(`Total in Sen (integer): ${totalInSen}`);
     setPayableAmount(totalInSen);
   }, [cartItems]);
 
@@ -55,24 +39,22 @@ const CartScreen = () => {  // Change to functional component
       try {
         const user = auth.currentUser;
         if (!user) {
-          // Handle unauthenticated state
           setCartItems([]);
           return;
         }
 
-        const userId = user.uid; // Get the current user ID
-        const cartRef = doc(db, 'carts', userId); // Reference to the user's cart document
+        const userId = user.uid; 
+        const cartRef = doc(db, 'carts', userId); 
 
-        // Listen for real-time updates on the cart document
         const unsubscribe = onSnapshot(cartRef, (docSnap) => {
           if (docSnap.exists()) {
-            setCartItems(docSnap.data().cartItems); // Update cart items from Firestore
+            setCartItems(docSnap.data().cartItems);
           } else {
-            setCartItems([]); // If no cart, set to an empty array
+            setCartItems([]);
           }
         });
 
-        return () => unsubscribe(); // Cleanup listener on component unmount
+        return () => unsubscribe();
       } catch (error) {
         console.error('Error fetching cart items:', error);
         Alert.alert('Error', 'Failed to fetch cart items.');
@@ -94,13 +76,13 @@ const CartScreen = () => {  // Change to functional component
       const userId = user.uid;
       const cartRef = doc(db, 'carts', userId);
 
-      const updatedCart = cartItems.filter(cartItem => cartItem.id !== item.id);
+      const updatedCart = cartItems.filter(
+        (cartItem) => cartItem.id !== item.id || cartItem.specialRequest !== item.specialRequest
+      );
 
       if (updatedCart.length === 0) {
-        // Delete the cart document if no items are left
         await deleteDoc(cartRef);
       } else {
-        // Otherwise, update the cart
         await updateDoc(cartRef, { cartItems: updatedCart });
       }
     } catch (error) {
@@ -113,6 +95,7 @@ const CartScreen = () => {  // Change to functional component
   const editItem = (item) => {
     setSelectedItem(item);
     setSpecialRequest(item.specialRequest || ''); // Set initial special request if available
+    setQuantity(item.quantity || 1); // Set initial quantity
     setIsModalVisible(true); // Show the modal
   };
 
@@ -129,8 +112,8 @@ const CartScreen = () => {  // Change to functional component
       const cartRef = doc(db, 'carts', userId);
 
       const updatedCart = cartItems.map(cartItem => {
-        if (cartItem.id === selectedItem.id) {
-          return { ...cartItem, specialRequest };
+        if (cartItem.id === selectedItem.id && cartItem.specialRequest === selectedItem.specialRequest) {
+          return { ...cartItem, specialRequest, quantity };
         }
         return cartItem;
       });
@@ -143,137 +126,17 @@ const CartScreen = () => {  // Change to functional component
     }
   };
 
-  // Fetch payment sheet parameters from backend
-  const fetchPaymentSheetParams = async () => {
-    try {
-      console.log('Fetching Payment Sheet Params...');
-      console.log(`Amount sent to backend: ${payableAmount}`); // Log the amount
-      const response = await fetch(`${API_URL}/payment-sheet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount: payableAmount }), // amount is now in sen (integer)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch payment sheet parameters: ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log('Payment Sheet Params:', data);
-
-      const { paymentIntent, ephemeralKey, customer } = data;
-
-      if (!paymentIntent || !ephemeralKey || !customer) {
-        throw new Error('Missing required payment sheet parameters from backend.');
-      }
-
-      return {
-        paymentIntent,
-        ephemeralKey,
-        customer,
-      };
-    } catch (error) {
-      console.error('Error fetching payment sheet params:', error);
-      throw error;
+  // Handle checkout by navigating to CheckoutScreen
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      Alert.alert('Cart Empty', 'Please add items to your cart before checking out.');
+      return;
     }
-  };
 
-  // Initialize the payment sheet
-  const initializePaymentSheet = async () => {
-    try {
-      console.log('Initializing Payment Sheet...');
-      setLoading(true);
-      const {
-        paymentIntent,
-        ephemeralKey,
-        customer,
-      } = await fetchPaymentSheetParams();
-
-      console.log('Fetched Payment Sheet Params:', { paymentIntent, ephemeralKey, customer });
-
-      const { error } = await initPaymentSheet({
-        merchantDisplayName: "OBOMA",
-        customerId: customer,
-        customerEphemeralKeySecret: ephemeralKey,
-        paymentIntentClientSecret: paymentIntent,
-        allowsDelayedPaymentMethods: true,
-        defaultBillingDetails: {
-          name: 'Nagulan',
-        }
-      });
-
-      if (error) {
-        console.error('Error initializing Payment Sheet:', error);
-        Alert.alert('Error', error.message);
-      } else {
-        console.log('Payment Sheet initialized successfully');
-      }
-    } catch (error) {
-      console.error('Error in initializePaymentSheet:', error);
-      Alert.alert('Error', 'Failed to initialize payment sheet.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Open the payment sheet
-  const openPaymentSheet = async () => {
-    try {
-      console.log('Presenting Payment Sheet...');
-      setPaymentLoading(true);
-      const { error } = await presentPaymentSheet();
-
-      if (error) {
-        console.error('PaymentSheet Error:', error);
-        Alert.alert(`Error code: ${error.code}`, error.message);
-      } else {
-        Alert.alert('Success', 'Your order is confirmed!');
-        await clearCart();
-      }
-    } catch (error) {
-      console.error('Error presenting payment sheet:', error);
-      Alert.alert('Error', 'Failed to present payment sheet.');
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
-
-  // Handle checkout by initializing and then presenting the payment sheet
-  const handleCheckout = async () => {
-    console.log('Checkout button pressed');
-    try {
-      await initializePaymentSheet();
-      console.log('Payment sheet initialized');
-
-      // Only present the payment sheet if initialization was successful
-      await openPaymentSheet();
-
-      console.log('Payment sheet opened');
-    } catch (error) {
-      console.error('Error during checkout:', error);
-      Alert.alert('Error', 'Failed to process checkout: ' + error.message);
-    }
-  };
-
-  // Clear the cart after successful payment
-  const clearCart = async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        Alert.alert('Error', 'User not authenticated.');
-        return;
-      }
-
-      const userId = user.uid;
-      const cartRef = doc(db, 'carts', userId);
-      await deleteDoc(cartRef);
-    } catch (error) {
-      console.error('Error clearing cart:', error);
-      Alert.alert('Error', 'Failed to clear cart.');
-    }
+    navigation.navigate('CheckoutScreen', {
+      cartItems,
+      payableAmount,
+    });
   };
 
   // Render each cart item
@@ -305,7 +168,7 @@ const CartScreen = () => {  // Change to functional component
           <FlatList
             data={cartItems}
             renderItem={renderItem}
-            keyExtractor={item => item.id}
+            keyExtractor={(item, index) => `${item.id}-${item.specialRequest}-${index}`}
           />
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>
@@ -314,9 +177,9 @@ const CartScreen = () => {  // Change to functional component
             <TouchableOpacity 
               onPress={handleCheckout}
               style={styles.checkoutButton}
-              disabled={loading || paymentLoading}
+              disabled={loading}
             >
-              {loading || paymentLoading ? (
+              {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.checkoutText}>Proceed to Checkout</Text>
@@ -342,10 +205,19 @@ const CartScreen = () => {  // Change to functional component
                   onChangeText={setSpecialRequest}
                 />
 
+                <View style={styles.quantityContainer}>
+                  <TouchableOpacity onPress={() => setQuantity(Math.max(1, quantity - 1))}>
+                    <Text style={styles.quantityButton}>-</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.quantityText}>{quantity}</Text>
+                  <TouchableOpacity onPress={() => setQuantity(quantity + 1)}>
+                    <Text style={styles.quantityButton}>+</Text>
+                  </TouchableOpacity>
+                </View>
+
                 <TouchableOpacity style={styles.saveButton} onPress={updateItemInCart}>
                   <Text style={styles.saveButtonText}>Save Changes</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity 
                   style={styles.cancelButton} 
                   onPress={() => setIsModalVisible(false)}
@@ -355,13 +227,6 @@ const CartScreen = () => {  // Change to functional component
               </View>
             </View>
           </Modal>
-
-          {/* Loading Indicator for Payment Sheet Initialization */}
-          {(loading || paymentLoading) && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-          )}
         </>
       ) : (
         <View style={styles.emptyContainer}>
@@ -373,6 +238,7 @@ const CartScreen = () => {  // Change to functional component
 };
 
 const styles = StyleSheet.create({
+  // ... (Keep your existing styles unchanged)
   container: {
     flex: 1,
     padding: 10,
@@ -520,6 +386,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.7)',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  quantityButton: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    paddingHorizontal: 15,
+    color: '#007BFF',
+  },
+  quantityText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
   },
 });
 

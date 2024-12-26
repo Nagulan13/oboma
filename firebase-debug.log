@@ -1,13 +1,13 @@
-[debug] [2024-11-23T21:35:53.714Z] ----------------------------------------------------------------------
-[debug] [2024-11-23T21:35:53.716Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\DNA\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
-[debug] [2024-11-23T21:35:53.717Z] CLI Version:   13.27.0
-[debug] [2024-11-23T21:35:53.717Z] Platform:      win32
-[debug] [2024-11-23T21:35:53.717Z] Node Version:  v20.13.1
-[debug] [2024-11-23T21:35:53.717Z] Time:          Sun Nov 24 2024 05:35:53 GMT+0800 (Singapore Standard Time)
-[debug] [2024-11-23T21:35:53.717Z] ----------------------------------------------------------------------
+[debug] [2024-12-25T05:47:48.405Z] ----------------------------------------------------------------------
+[debug] [2024-12-25T05:47:48.408Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\DNA\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2024-12-25T05:47:48.409Z] CLI Version:   13.29.1
+[debug] [2024-12-25T05:47:48.409Z] Platform:      win32
+[debug] [2024-12-25T05:47:48.409Z] Node Version:  v20.13.1
+[debug] [2024-12-25T05:47:48.409Z] Time:          Wed Dec 25 2024 13:47:48 GMT+0800 (Singapore Standard Time)
+[debug] [2024-12-25T05:47:48.410Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2024-11-23T21:35:53.796Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2024-11-23T21:35:53.796Z] > authorizing via signed-in user (nagu1370@gmail.com)
+[debug] [2024-12-25T05:47:48.494Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-12-25T05:47:48.494Z] > authorizing via signed-in user (nagu1370@gmail.com)
 [info] 
      ######## #### ########  ######## ########     ###     ######  ########
      ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
@@ -17,7 +17,7 @@
 
 You're about to initialize a Firebase project in this directory:
 
-  C:\Users\DNA\OneDrive\Desktop\SEM 6\Project after done payment success\project\whiskitco
+  C:\Users\DNA\OneDrive\Desktop\SEM 6\OBOMA AFTER PR 2\project\whiskitco
 
 Before we get started, keep in mind:
 
@@ -30,16 +30,149 @@ Before we get started, keep in mind:
 [info] You can create multiple project aliases by running firebase use --add, 
 [info] but for now we'll just set up a default project.
 [info] 
-[debug] [2024-11-23T21:36:01.240Z] Using project from CLI flag: oboma
-[debug] [2024-11-23T21:36:01.242Z] Checked if tokens are valid: true, expires at: 1732401331087
-[debug] [2024-11-23T21:36:01.242Z] Checked if tokens are valid: true, expires at: 1732401331087
-[debug] [2024-11-23T21:36:01.244Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/oboma [none]
-[debug] [2024-11-23T21:36:02.096Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/oboma 403
-[debug] [2024-11-23T21:36:02.096Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/oboma {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
-[debug] [2024-11-23T21:36:02.097Z] Request to https://firebase.googleapis.com/v1beta1/projects/oboma had HTTP Error: 403, The caller does not have permission
-[debug] [2024-11-23T21:36:02.164Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/oboma had HTTP Error: 403, The caller does not have permission
-    at responseToError (C:\Users\DNA\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:52:12)
-    at RetryOperation._fn (C:\Users\DNA\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:312:77)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-[error] 
-[error] Error: Failed to get Firebase project oboma. Please make sure the project exists and your account has permission to access it.
+[debug] [2024-12-25T05:47:52.872Z] Using project from CLI flag: oboma-5730f
+[debug] [2024-12-25T05:47:52.875Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:52.875Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:52.878Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/oboma-5730f [none]
+[debug] [2024-12-25T05:47:53.428Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/oboma-5730f 200
+[debug] [2024-12-25T05:47:53.429Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/oboma-5730f {"projectId":"oboma-5730f","projectNumber":"971587600243","displayName":"oboma","name":"projects/oboma-5730f","resources":{"hostingSite":"oboma-5730f","storageBucket":"oboma-5730f.appspot.com","locationId":"asia-southeast1"},"state":"ACTIVE","etag":"1_ec952e9d-aa14-4d2e-8b1a-77e67e524c6f"}
+[info] i  Using project oboma-5730f (oboma) 
+[info] 
+=== Dataconnect Setup
+[debug] [2024-12-25T05:47:53.451Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:53.451Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:53.452Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/oboma-5730f/billingInfo [none]
+[debug] [2024-12-25T05:47:54.925Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/oboma-5730f/billingInfo 200
+[debug] [2024-12-25T05:47:54.925Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/oboma-5730f/billingInfo {"name":"projects/oboma-5730f/billingInfo","projectId":"oboma-5730f","billingAccountName":"","billingEnabled":false}
+[info] i  dataconnect: ensuring required API sqladmin.googleapis.com is enabled... 
+[debug] [2024-12-25T05:47:54.928Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:54.928Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:54.928Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com [none]
+[debug] [2024-12-25T05:47:54.929Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:47:56.511Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com 200
+[debug] [2024-12-25T05:47:56.511Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com [omitted]
+[warn] !  dataconnect: missing required API sqladmin.googleapis.com. Enabling now... 
+[debug] [2024-12-25T05:47:56.513Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:56.513Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:47:56.514Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com:enable [none]
+[debug] [2024-12-25T05:47:56.514Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com:enable x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:47:57.998Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com:enable 200
+[debug] [2024-12-25T05:47:57.998Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com:enable [omitted]
+[debug] [2024-12-25T05:48:08.005Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:08.006Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:08.006Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com [none]
+[debug] [2024-12-25T05:48:08.007Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:48:09.513Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com 200
+[debug] [2024-12-25T05:48:09.513Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/sqladmin.googleapis.com [omitted]
+[info] +  dataconnect: required API sqladmin.googleapis.com is enabled 
+[info] +  Wrote dataconnect\dataconnect.yaml 
+[info] +  Wrote dataconnect\schema\schema.gql 
+[info] +  Wrote dataconnect\connector\connector.yaml 
+[info] +  Wrote dataconnect\connector\queries.gql 
+[info] +  Wrote dataconnect\connector\mutations.gql 
+[info] +  Detected WEB app in directory C:\Users\DNA\OneDrive\Desktop\SEM 6\OBOMA AFTER PR 2\project\whiskitco 
+[info] i  Wrote new config to C:\Users\DNA\OneDrive\Desktop\SEM 6\OBOMA AFTER PR 2\project\whiskitco\dataconnect\connector/connector.yaml 
+[info] i  dataconnect: downloading dataconnect-emulator-1.7.5.exe... {"metadata":{"emulator":{"name":"dataconnect"},"message":"downloading dataconnect-emulator-1.7.5.exe..."}}
+[debug] [2024-12-25T05:48:16.209Z] >>> [apiv2][query] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-v1.7.5 
+[debug] [2024-12-25T05:48:16.753Z] <<< [apiv2][status] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-v1.7.5 200
+[debug] [2024-12-25T05:48:16.753Z] <<< [apiv2][body] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-v1.7.5 [stream]
+[info] I1225 13:48:43.707721   35376 codegen.go:82] [connector "default" javascriptSdk] Generating sources into "C:\\Users\\DNA\\OneDrive\\Desktop\\SEM 6\\OBOMA AFTER PR 2\\project\\whiskitco\\dataconnect-generated\\js\\default-connector"
+I1225 13:48:43.856929   35376 generate.go:40] Generated all sources. Writing them to disk...
+I1225 13:48:43.871354   35376 collector.go:107] connector "default" javascriptSdk wrote into "C:\\Users\\DNA\\OneDrive\\Desktop\\SEM 6\\OBOMA AFTER PR 2\\project\\whiskitco\\dataconnect-generated\\js\\default-connector"
+Generated sources: index.d.ts [264B] esm\index.esm.js [182B] esm\package.json [17B] index.cjs.js [223B] package.json [634B] 
+I1225 13:48:43.922819   35376 installsdk.go:76] Running command: C:\Program Files\nodejs\npm.cmd install file:dataconnect-generated\js\default-connector
+
+[info] i  Generated SDK code for default 
+[info] +  If you'd like to add more generated SDKs to your app your later, run firebase init dataconnect:sdk again 
+[info] i  If you'd like to provision a CloudSQL Postgres instance on the Firebase Data Connect no-cost trial:
+1. Please upgrade to the pay-as-you-go (Blaze) billing plan. Visit the following page:
+     https://console.firebase.google.com/project/oboma-5730f/usage/details
+2. Run firebase init dataconnect again to configure the Cloud SQL instance.
+3. Run firebase deploy --only dataconnect to deploy your Data Connect service. 
+[info] 
+=== Firestore Setup
+[debug] [2024-12-25T05:48:49.034Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:49.034Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:49.035Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/firestore.googleapis.com [none]
+[debug] [2024-12-25T05:48:49.035Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/firestore.googleapis.com x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:48:50.523Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/firestore.googleapis.com 200
+[debug] [2024-12-25T05:48:50.523Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/firestore.googleapis.com [omitted]
+[debug] [2024-12-25T05:48:50.524Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:50.524Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:50.525Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default) [none]
+[debug] [2024-12-25T05:48:50.780Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default) 200
+[debug] [2024-12-25T05:48:50.781Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default) {"name":"projects/oboma-5730f/databases/(default)","uid":"6d02f3a0-04eb-4860-8549-db3906ecdf8a","createTime":"2024-06-16T13:44:28.684021Z","updateTime":"2024-06-16T13:44:28.684021Z","locationId":"asia-southeast1","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2024-12-25T04:48:50.386262Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"zas","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","etag":"IMut1MWcwooDMK7p7Yr43okD"}
+[debug] [2024-12-25T05:48:50.781Z] database_type: FIRESTORE_NATIVE
+[debug] [2024-12-25T05:48:50.781Z] database_type: FIRESTORE_NATIVE
+[debug] [2024-12-25T05:48:50.781Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-12-25T05:48:50.781Z] > authorizing via signed-in user (nagu1370@gmail.com)
+[debug] [2024-12-25T05:48:50.781Z] [iam] checking project oboma-5730f for permissions ["firebase.projects.get"]
+[debug] [2024-12-25T05:48:50.782Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:50.782Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:48:50.782Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions [none]
+[debug] [2024-12-25T05:48:50.782Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:48:50.782Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2024-12-25T05:48:51.977Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions 200
+[debug] [2024-12-25T05:48:51.977Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[info] 
+[info] Firestore Security Rules allow you to define how and when to allow
+[info] requests. You can keep these rules in your project directory
+[info] and publish them with firebase deploy.
+[info] 
+[debug] [2024-12-25T05:49:08.291Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:08.291Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:08.292Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/oboma-5730f/releases pageSize=10&pageToken=
+[debug] [2024-12-25T05:49:09.860Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/oboma-5730f/releases 200
+[debug] [2024-12-25T05:49:09.860Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/oboma-5730f/releases {"releases":[{"name":"projects/oboma-5730f/releases/cloud.firestore","rulesetName":"projects/oboma-5730f/rulesets/b9789822-6bd7-4bb0-a54f-05c66f4b2673","createTime":"2024-06-16T13:44:48.650507Z","updateTime":"2024-11-19T19:34:16.292477Z"},{"name":"projects/oboma-5730f/releases/firebase.storage/oboma-5730f.appspot.com","rulesetName":"projects/oboma-5730f/rulesets/f91b7c32-a8bd-44e9-9656-c091667db29c","createTime":"2024-06-22T22:28:53.914965Z","updateTime":"2024-06-22T22:38:55.854772Z"}]}
+[debug] [2024-12-25T05:49:09.897Z] Found ruleset: projects/oboma-5730f/rulesets/b9789822-6bd7-4bb0-a54f-05c66f4b2673
+[debug] [2024-12-25T05:49:09.897Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:09.897Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:09.897Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/oboma-5730f/rulesets/b9789822-6bd7-4bb0-a54f-05c66f4b2673 [none]
+[debug] [2024-12-25T05:49:10.416Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/oboma-5730f/rulesets/b9789822-6bd7-4bb0-a54f-05c66f4b2673 200
+[debug] [2024-12-25T05:49:10.416Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/oboma-5730f/rulesets/b9789822-6bd7-4bb0-a54f-05c66f4b2673 [omitted]
+[info] 
+[info] Firestore indexes allow you to perform complex queries while
+[info] maintaining performance that scales with the size of the result
+[info] set. You can keep index definitions in your project directory
+[info] and publish them with firebase deploy.
+[info] 
+[debug] [2024-12-25T05:49:20.982Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:20.983Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:20.983Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:20.984Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:20.984Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default)/collectionGroups/-/indexes [none]
+[debug] [2024-12-25T05:49:20.993Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* [none]
+[debug] [2024-12-25T05:49:21.246Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default)/collectionGroups/-/indexes 200
+[debug] [2024-12-25T05:49:21.246Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default)/collectionGroups/-/indexes {"indexes":[{"name":"projects/oboma-5730f/databases/(default)/collectionGroups/orders/indexes/CICAgOjXh4EK","queryScope":"COLLECTION","fields":[{"fieldPath":"customerId","order":"ASCENDING"},{"fieldPath":"order_date","order":"DESCENDING"},{"fieldPath":"__name__","order":"DESCENDING"}],"state":"READY"},{"name":"projects/oboma-5730f/databases/(default)/collectionGroups/payment/indexes/CICAgOi3kJAK","queryScope":"COLLECTION","fields":[{"fieldPath":"customer_id","order":"ASCENDING"},{"fieldPath":"payment_date","order":"DESCENDING"},{"fieldPath":"__name__","order":"DESCENDING"}],"state":"READY"}]}
+[debug] [2024-12-25T05:49:21.248Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* 200
+[debug] [2024-12-25T05:49:21.248Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/oboma-5730f/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* {"fields":[{"name":"projects/oboma-5730f/databases/(default)/collectionGroups/__default__/fields/*","indexConfig":{"indexes":[{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"ASCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"DESCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","arrayConfig":"CONTAINS"}],"state":"READY"}]}}]}
+[info] 
+=== Genkit Setup
+[warn] !  genkit: Stopped Genkit initialization 
+[info] 
+=== Functions Setup
+[debug] [2024-12-25T05:49:56.346Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-12-25T05:49:56.346Z] > authorizing via signed-in user (nagu1370@gmail.com)
+[debug] [2024-12-25T05:49:56.346Z] [iam] checking project oboma-5730f for permissions ["firebase.projects.get"]
+[debug] [2024-12-25T05:49:56.346Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:56.346Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:56.347Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions [none]
+[debug] [2024-12-25T05:49:56.347Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:49:56.347Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2024-12-25T05:49:57.518Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions 200
+[debug] [2024-12-25T05:49:57.518Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/oboma-5730f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2024-12-25T05:49:57.519Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:57.519Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:57.519Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:57.519Z] Checked if tokens are valid: true, expires at: 1735109108488
+[debug] [2024-12-25T05:49:57.520Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/cloudfunctions.googleapis.com [none]
+[debug] [2024-12-25T05:49:57.520Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:49:57.524Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/runtimeconfig.googleapis.com [none]
+[debug] [2024-12-25T05:49:57.525Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/oboma-5730f
+[debug] [2024-12-25T05:49:58.996Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/runtimeconfig.googleapis.com 200
+[debug] [2024-12-25T05:49:58.997Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2024-12-25T05:49:59.006Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/cloudfunctions.googleapis.com 200
+[debug] [2024-12-25T05:49:59.006Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/oboma-5730f/services/cloudfunctions.googleapis.com [omitted]
+[info] 
+Detected existing codebase(s): default
+

@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable';
 import { validateEmail } from '../../utils/validations';
 
+
 const { width, height } = Dimensions.get('window');
 
 const Login = ({ handleAuthentication, toggleForm, navigateToPasswordReset }) => {
